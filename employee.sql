@@ -101,6 +101,52 @@ from dept d, employee e, project p, assignedto a
 where e.deptno = d.deptno 
 	and e.empno = a.empno and a.pno = p.pno and p.ploc = d.dloc;
 
+SELECT m.ename, count(*)
+FROM employee e,employee m
+WHERE e.mgr_no = m.empno
+GROUP BY m.ename
+HAVING count(*) =(SELECT MAX(mycount)
+from (SELECT COUNT(*) mycount
+FROM employee
+GROUP BY mgr_no) a);  
+
+select m.ename
+from employee m
+WHERE sal >= (SELECT avg(e.sal)
+FROM employee e
+where m.empno = e.mgr_no
+group by e.mgr_no);
+
+select ename 
+from employee 
+where mgr_no 
+in (select empno from employee where mgr_no NOT IN (select empno from employee)) 
+        and empno in (select mgr_no from employee);
+
+select *
+from employee e,incentives i
+where e.empno=i.empno and  1 =
+( select count(*)
+from incentives j
+where i.incentive_amount < j.incentive_amount) ;
+
+select e.empno, e.ename, e.mgr_no, e.hiredate, e.sal, e.deptno, i.incentive_amount
+	from employee e, incentives i
+    where e.empno = i.empno 
+    and e.empno in
+		(select empno from incentives where incentive_amount in 
+			(select max(incentive_amount) from incentives where incentive_amount < 
+				(select max(incentive_amount) from incentives)));
+
+select e.empno, e.ename, e.mgr_no, e1.ename as mgr_name, e.deptno, d.dloc 
+from employee e, employee e1, dept d 
+where e1.empno = e.mgr_no 
+and e.deptno = d.deptno
+and d.dloc = 
+	(select d1.dloc 
+      from employee e2, dept d1 
+      where e2.empno = e.mgr_no 
+      and e2.deptno = d1.deptno);
 
 
 
